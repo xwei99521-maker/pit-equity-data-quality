@@ -16,7 +16,7 @@ def companyfacts_url(cik: str) -> str:
     return SEC_COMPANYFACTS_URL.format(cik=normalize_cik(cik))
 
 
-def fetch_companyfacts(cik: str, user_agent: str) -> dict[str, Any]:
+def request_companyfacts(cik: str, user_agent: str) -> tuple[dict[str, Any], int, str]:
     response = requests.get(
         companyfacts_url(cik),
         headers={
@@ -27,7 +27,12 @@ def fetch_companyfacts(cik: str, user_agent: str) -> dict[str, Any]:
         timeout=30,
     )
     response.raise_for_status()
-    return response.json()
+    return response.json(), response.status_code, response.url
+
+
+def fetch_companyfacts(cik: str, user_agent: str) -> dict[str, Any]:
+    data, _, _ = request_companyfacts(cik, user_agent)
+    return data
 
 
 def summarize_companyfacts(data: dict[str, Any]) -> dict[str, int | str]:

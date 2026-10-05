@@ -5,9 +5,10 @@ historical equity fundamentals. It starts from SEC EDGAR Company Facts data and
 retains the filing metadata needed to reconstruct what was known by a historical
 cutoff date.
 
-The current command inspects the structure of one company's SEC Company Facts
-response. Point-in-time snapshots and revision analysis will build on the source
-fields verified in this first step.
+The pipeline can inspect one Company Facts response or cache raw responses for
+a fixed case-study issuer set. The set is designed to expose different filing
+structures and is not a representative investment universe. Point-in-time
+snapshots and revision analysis will build on the retained source fields.
 
 ## Setup
 
@@ -17,7 +18,11 @@ name and contact email, as required by the SEC's automated-access guidance.
 ```bash
 python -m pip install -e ".[dev]"
 python -m pit_equity inspect-sec --cik 0000320193
+python -m pit_equity ingest-sec --issuers config/issuers.csv
 pytest
 ```
 
-Raw and processed data are kept outside version control.
+The ingestion command writes API responses and request metadata under
+`data/raw/sec/companyfacts`. A second run uses the complete local cache instead
+of downloading the same issuer again. Raw and processed data are kept outside
+version control.
