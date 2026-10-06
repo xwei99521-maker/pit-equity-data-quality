@@ -4,6 +4,7 @@ from pathlib import Path
 
 from pit_equity.config import sec_user_agent
 from pit_equity.ingest_sec import ingest_issuers, load_issuers, write_failure_report
+from pit_equity.normalize_facts import FACT_SCHEMA, build_facts
 from pit_equity.sec_client import fetch_companyfacts, summarize_companyfacts
 
 
@@ -28,6 +29,29 @@ def build_parser() -> argparse.ArgumentParser:
         "--failure-report",
         type=Path,
         default=Path("reports/generated/sec_ingest_failures.csv"),
+    )
+
+    build_facts_parser = commands.add_parser(
+        "build-facts", help="normalize cached SEC Company Facts data"
+    )
+    build_facts_parser.add_argument(
+        "--issuers", type=Path, default=Path("config/issuers.csv")
+    )
+    build_facts_parser.add_argument(
+        "--concepts", type=Path, default=Path("config/concepts.csv")
+    )
+    build_facts_parser.add_argument(
+        "--raw-dir", type=Path, default=Path("data/raw/sec")
+    )
+    build_facts_parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("data/processed/sec/facts.parquet"),
+    )
+    build_facts_parser.add_argument(
+        "--coverage-report",
+        type=Path,
+        default=Path("reports/generated/concept_coverage.csv"),
     )
     return parser
 
@@ -60,6 +84,28 @@ def main() -> None:
 
         if counts["failed"]:
             raise SystemExit(1)
+
+    if args.command == "build-facts":
+        summary = build_facts(
+            args.issuers,
+            args.concepts,
+            args.raw_dir,
+            args.output,
+            args.coverage_report,
+        )
+        print("Schema:")
+        for field in FACT_SCHEMA:
+            print(f"  {field.name}: {field.type}")
+        print(f"Rows: {summary.row_count}")
+        print(f"Issuers: {summary.issuer_count}")
+        print(f"Canonical concepts: {summary.concept_count}")
+        print(f"Issuer-concept coverage: {summary.covered_pairs}/{summary.total_pairs}")
+        print(f"Output: {summary.output_path}")
+        print(f"Coverage report: {summary.coverage_path}")
+        if summary.unit_anomalies:
+            print(f"Anomalous units: {', '.join(summary.unit_anomalies)}")
+        else:
+            print("Anomalous units: none")
 
 
 if __name__ == "__main__":

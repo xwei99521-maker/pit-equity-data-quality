@@ -9,6 +9,7 @@ description = "Point-in-time equity fundamentals and data quality pipeline built
 readme = "README.md"
 requires-python = ">=3.11,<3.15"
 dependencies = [
+    "pyarrow>=18,<26",
     "python-dotenv>=1.0,<2",
     "requests>=2.32,<3",
 ]

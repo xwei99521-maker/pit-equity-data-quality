@@ -1,0 +1,6 @@
+canonical_concept,taxonomy,tag,period_type,expected_unit
+assets,us-gaap,Assets,instant,USD
+liabilities,us-gaap,Liabilities,instant,USD
+stockholders_equity,us-gaap,StockholdersEquity,instant,USD
+revenue,us-gaap,RevenueFromContractWithCustomerExcludingAssessedTax,duration,USD
+net_income,us-gaap,NetIncomeLoss,duration,USD
